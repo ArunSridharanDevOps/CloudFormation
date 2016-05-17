@@ -1,0 +1,34 @@
+[
+  {
+    "ParameterKey": "TagKey" ,
+    "ParameterValue": "Name"
+  },
+  {
+    "ParameterKey": "TagValue" ,
+    "ParameterValue": "Sawgrass-Web-CFN-01"
+  },
+  {
+    "ParameterKey": "SubnetId",
+    "ParameterValue": "subnet-f7d35edd"
+  },
+  {
+    "ParameterKey": "ImageId",
+    "ParameterValue": "ami-3268da5a"
+  },
+
+  {
+    "ParameterKey": "InstanceType",
+    "ParameterValue": "m3.2xlarge"
+  },
+  
+  {
+    "ParameterKey": "SecurityGroupId",
+    "ParameterValue": "sg-7ffed107"
+  },
+
+  {
+    "ParameterKey": "KeyPairName",
+    "ParameterValue": "ArunSridharan-WL3"
+  }
+
+]

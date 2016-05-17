@@ -1,0 +1,89 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "Basic EC2 instance with a VPC, Subnet and basic security group",
+    "Parameters": {},
+    "Mappings": {},
+    "Resources": {
+        "BasicVPC" : {
+            "Type" : "AWS::EC2::VPC",
+            "Properties" : {
+              "Tags": [{ "Key": "Name", "Value": "DiamondVPC" }],
+                "CidrBlock" : "10.0.0.0/16",
+    	          "EnableDnsSupport" : "true",
+    	          "EnableDnsHostnames" : "true"
+            }
+        },
+        "BasicVPCSubnet": {
+            "Type":"AWS::EC2::Subnet",
+            "DependsOn": ["BasicVPC"],
+            "Properties": {
+              "Tags": [{ "Key": "Name", "Value": "DiamondSubnet" }],
+              "VpcId": {"Ref":"BasicVPC"},
+              "CidrBlock": "10.0.0.0/24"
+            }
+        },
+        "MyInternetGateway":{
+ 		"Type" : "AWS::EC2::InternetGateway",
+   		"Properties" : {
+      		"Tags" : [{ "Key": "Name", "Value": "DiamondIGW" }]
+   		}
+	},
+	"MyRouteTable": {
+		   "Type" : "AWS::EC2::RouteTable",
+		   "Properties" : {
+		      "VpcId" : { "Ref": "BasicVPC" },
+		      "Tags" : [{ "Key": "Name", "Value": "DiamondRouteTable" }]
+		   }
+	},
+	"MyVPCGtwAtch": {
+		   "Type" : "AWS::EC2::VPCGatewayAttachment",
+		   "Properties" : {
+		      "InternetGatewayId" : { "Ref": "MyInternetGateway" },
+		      "VpcId" : { "Ref": "BasicVPC" }
+	   }
+	},
+	"MySubnetRouteTableAssociation": {
+		   "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+		   "Properties" : {
+		      "RouteTableId" : { "Ref": "MyRouteTable" },
+		      "SubnetId" : { "Ref": "BasicVPCSubnet" }
+	   }
+	},
+	 "myRoute" : {
+	         "Type" : "AWS::EC2::Route",
+	         "DependsOn" : "MyInternetGateway",
+	         "Properties" : {
+	            "RouteTableId" : { "Ref" : "MyRouteTable" },
+	            "DestinationCidrBlock" : "0.0.0.0/0",
+	            "GatewayId" : { "Ref" : "MyInternetGateway" }
+	         }
+      },
+				"InstanceSecurity" : {
+				 "Type" : "AWS::EC2::SecurityGroup",
+				 "Properties" : {
+          				 "Tags": [{ "Key": "Name", "Value": "DiamondSG" }],
+					 "GroupDescription" : "allow ssh,web,mosh from everywhere",
+           				 "VpcId": { "Ref": "BasicVPC" },
+					 "SecurityGroupIngress" : [
+								 {
+										 "IpProtocol" : "tcp",
+										 "FromPort" : "22",
+										 "ToPort" : "22",
+										 "CidrIp" : "0.0.0.0/0"
+								 },{
+										 "IpProtocol" : "tcp",
+										 "FromPort" : "80",
+										 "ToPort" : "80",
+										 "CidrIp" : "0.0.0.0/0"
+								 },{
+										 "IpProtocol" : "udp",
+										 "FromPort" : "60000",
+										 "ToPort" : "61000",
+										 "CidrIp" : "0.0.0.0/0"
+								 }
+						 ]
+				 }
+				 }
+				}
+}
+

@@ -1,0 +1,94 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+  "Description": "Create instances ready for Sawgrass Web/WAS",
+  "Parameters" : {
+    "TagKey": {
+      "Description": "The EC2 tag key that identifies this as a target for deployments.",
+      "Type": "String",
+    "Default": "Name",
+      "AllowedPattern": "[\\x20-\\x7E]*",
+      "ConstraintDescription": "Can contain only ASCII characters."
+    },
+    "TagValue": {
+      "Description": "The EC2 tag value that identifies this as a target for deployments.",
+      "Type": "String",
+    "Default": "CodeDeployDemo",
+      "AllowedPattern": "[\\x20-\\x7E]*",
+      "ConstraintDescription": "Can contain only ASCII characters."
+    },
+    "SubnetId" : {
+      "Type" : "String"
+    },
+    "ImageId" : {
+      "Type" : "String"
+    },
+    "InstanceType" : {
+      "Type" : "String"
+    },
+    "SecurityGroupId" : {
+      "Type" : "String"
+    },
+    "KeyPairName": {
+      "Description": "Name of an existing Amazon EC2 key pair to enable SSH or RDP access to the instances.",
+      "Type": "String",
+      "MinLength": "1",
+      "MaxLength": "255",
+      "AllowedPattern": "[\\x20-\\x7E]*",
+      "ConstraintDescription": "KeyPairName is a required Field and can contain only ASCII characters."
+    },
+    "InstanceCount": {
+      "Description": "Number of Amazon EC2 instances (Must be a number between 1 and 3).",
+      "Type": "Number",
+      "Default": "1",
+      "ConstraintDescription": "Must be a number between 1 and 3.",
+      "MinValue": "1",
+      "MaxValue": "3"
+    }
+    },
+    "Resources" : {
+    "ClientTestInstance" : {
+      "Type" : "AWS::EC2::Instance",
+      "Properties" : {
+        "ImageId"           : { "Ref" : "ImageId" },
+        "SubnetId"          : { "Ref" : "SubnetId" },
+        "InstanceType"      : { "Ref" : "InstanceType" },
+        "SecurityGroupIds"  : [ { "Ref" : "SecurityGroupId" } ],
+        "KeyName"           : { "Ref" : "KeyPairName" },
+        "Tags"              : [ { "Key": {"Ref": "TagKey"},"Value": {"Ref": "TagValue"} } ],
+        "BlockDeviceMappings" : [
+   {
+      "DeviceName" : "/dev/sdf",
+      "Ebs" : {
+         "DeleteOnTermination" : "true",
+         "VolumeSize" : "60"
+      }
+   },
+   {
+      "DeviceName" : "/dev/sdk",
+      "Ebs" : {
+         "DeleteOnTermination" : "false",
+         "VolumeSize" : "40"
+      }
+   }
+],
+
+"UserData": {
+  "Fn::Base64": {
+    "Fn::Join": [
+      "",
+      [
+        "#!/bin/bash -ex\n",
+        "touch /tmp/Arun"
+      ]
+    ]
+  }
+}
+      }
+    }
+  },
+  "Outputs" : {
+    "ClientTestInstanceIp" : {
+      "Value": { "Fn::GetAtt": [ "ClientTestInstance", "PrivateIp" ] }
+    }
+  }
+}
